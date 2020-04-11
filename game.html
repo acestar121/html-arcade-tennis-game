@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>&#169; yash</title>
+	<style type="text/css">
+		        button {
+                 background-color: #4CAF50;
+                 color: white;
+                 padding: 16px;
+                 font-size: 16px;
+                 border: none;
+                 cursor: pointer;
+                 padding: 20px;
+                 width: 200px;
+             }
+		 .dropdown {
+                 position: relative;
+                 display: inline-block;
+                  }
+        .dropdown-content {
+                          display: none;
+
+                          position: absolute;
+                          background-color: #f9f9f9;
+                          min-width: 160px;
+                          box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+                          z-index: 1;
+                             }
+        .dropdown-content a {
+                             color: black;
+                             padding: 12px 16px;
+                             text-decoration: none;
+                             display: block;
+                              }  
+        .dropdown-content a:hover{color:#f1f1f1;}      
+        .dropdown:hover .dropdown-content{
+        	display: inline-block;
+
+        }
+        .dropdown:hover .dropbtn {
+                                  background-color: #3e8e41;
+                                 }       
+		
+	</style>
+</head>
+<body>
+<div align="left">>
+	<div class="dropdown">
+	<button class="dropbtn">Settings</button>
+	<div class="dropdown-content">
+		<a href="modify.html">Modify Game Board</a>
+	</div>
+</div>
+</div><hr>
+<div align="middle">
+<canvas id="gameCanvas" width="800" height="600"></canvas>
+</div>
+
+<script type="text/javascript">
+	var canvas;
+
+	var canvasContext;
+    //this variable (ballX and ballSpeedY) is used for changing horizontal position of ball
+	var ballX = 50;
+
+	var ballY= 50;
+
+	var ballSpeedX = 10;
+
+	var ballSpeedY = 4;
+
+    var paddle1Y = 250;
+
+    var paddle2Y = 250;
+
+    const PADDLE_HEIGHT = 100;
+
+    const paddleThickness = 10;
+
+    var player1Score = 0;
+
+    var player2Score = 0;
+
+    const Winning_Score = localStorage.getItem('point');
+
+    var showingWinScreen = false;
+
+    var middle = 400;
+
+    var ballcolor = localStorage.getItem('ballc');
+
+    var paddlecolor = localStorage.getItem('paddlec');
+
+    var background = localStorage.getItem('bg');
+
+   
+    function calculateMousePos(evt) {
+	var rect = canvas.getBoundingClientRect();
+	var root = document.documentElement;
+	var mouseX = evt.clientX - rect.left - root.scrollLeft;
+	var mouseY = evt.clientY - rect.top - root.scrollTop;
+	return {
+		x:mouseX,
+		y:mouseY
+	};
+}
+//// window.onload = function(){
+//// 	canvas = document.getElementById('gameCanvas');
+//// canvasContext = canvas.getContext('2d');
+//// 	var framesPerSecond = 30;
+//// 	setInterval(function(){
+//// 	moveEverything();  
+//// 	drawEverything();
+//// 	}, 1000/framesPerSecond);
+
+//// 	canvas.addEventListner('mousemove',
+//// 		function(evt){
+//// 			var mousePos = calculateMousePos(evt);
+//// 			paddle1Y  = mousePos.y;
+//// 		});
+//// }
+
+
+//window.onload means this function will run only after complete loading of window;
+
+function handleMouseClick(evt){
+	if(showingWinScreen){
+		player1Score = 0;
+		player2Score = 0;
+		showingWinScreen = false;
+	}
+}
+window.onload = function()
+{
+	//this is used to get canvas;
+	canvas = document.getElementById('gameCanvas');
+	canvasContext = canvas.getContext('2d');
+	var framesPerSecond = 30;
+	setInterval(function() 
+	{
+	  moveEverything();
+	  drawEverything();	
+	}, 1000/framesPerSecond);
+
+	//it is a event listner. in this case it sense all movements of our mouse and accordingly performs its function;
+	canvas.addEventListener('mousedown',handleMouseClick);
+	canvas.addEventListener('mousemove', function(evt)
+	{
+			var mousePos = calculateMousePos(evt);
+			paddle1Y = mousePos.y;
+	});
+}
+
+//this function is used to reset ball after loosing eac point(or say when ball toches right or left side of canvas then ball resets back to middle)
+function ballReset()
+{
+	if(player1Score >= Winning_Score || player2Score >= Winning_Score){
+		showingWinScreen = true;
+	}
+	ballSpeedX = -ballSpeedX;
+	ballX = canvas.width/2;
+	ballY = canvas.height/2;
+}
+
+
+//this function is used to move right paddle by concepts and logic of AI;
+function computerMovement()
+{
+	var paddle2YCenter = paddle2Y + (PADDLE_HEIGHT/2);
+	if(paddle2YCenter < ballY - 35){
+		paddle2Y += 6;
+	}
+	else if(paddle2YCenter > ballY + 35){
+		paddle2Y -= 6;
+	}
+}
+
+//this function is used to move each and every object on canvas;
+function moveEverything(){
+	if (showingWinScreen){
+		return;
+	} 
+	    computerMovement();
+		ballX += ballSpeedX;
+		ballY += ballSpeedY;
+		
+		if(ballX < 0){ 
+			//this if statement is used to bounce ball back to right paddle from left paddle;
+			if(ballY > paddle1Y && ballY < paddle1Y + PADDLE_HEIGHT)
+			{
+				ballSpeedX = -ballSpeedX;
+
+				var deltaY = ballY - (paddle1Y+PADDLE_HEIGHT/2);
+				ballSpeedY = deltaY*0.35;
+			}
+			else
+			{
+				player2Score++;//must be before the ballReset()
+			  ballReset();
+			  
+		    }
+		}
+		// console.log(`ballSpeedX = ${ballSpeedX}`);
+		// console.log(`ballX = ${ballX}`);
+
+
+		//this if statement is used to bounce ball back from right to left back;
+		if(ballX > canvas.width)
+		{
+			if(ballY > paddle2Y && ballY < paddle2Y + PADDLE_HEIGHT)
+			{
+				ballSpeedX = -ballSpeedX;
+				var deltaY = ballY - (paddle2Y+PADDLE_HEIGHT/2);
+				ballSpeedY = deltaY*0.35;
+			 }
+			else
+			{
+				player1Score++;//must be before the ballReset()
+			    ballReset();
+			    
+		    }
+		}
+
+
+		//this 'if' statement is used to bounce ball downward from upward;
+		if(ballY < 0)
+		{
+			ballSpeedY = -ballSpeedY;
+		}
+		// console.log(`ballSpeedY = ${ballSpeedY}`);
+		// console.log(`ballY = ${ballY}`);
+
+
+		//this 'if' statement is used to bounce ball from bottom to upwards;
+		if(ballY > canvas.height)
+		{
+			ballSpeedY = -ballSpeedY;
+		}
+}
+
+function drawNet(){
+	for(var i=0; i < canvas.height; i += 20 ){
+		colorRect(canvas.width/2-1,i,2,10,paddlecolor)
+	}
+}
+
+function drawEverything()
+{
+	//next line is used to give black color to screen
+	colorRect(0,0,canvas.width,canvas.height,background); 
+	//this is function to create left player paddel or say left tennis bat
+		if (showingWinScreen){
+			canvasContext.fillStyle = 'white';
+			if(player1Score >= Winning_Score){
+				canvasContext.fillText("Left is winner",350,200)
+			}
+			else if(player2Score >= Winning_Score){
+				canvasContext.fillText("Right is winner",350,200)
+			}
+			
+			canvasContext.fillText("Click to continue",350,500);
+		return;
+	} 
+	drawNet();
+	colorRect(0,paddle1Y ,paddleThickness,100,paddlecolor);
+		//this is function to create right computer paddel or say left tennis bat
+	colorRect(canvas.width - paddleThickness,paddle2Y ,paddleThickness,PADDLE_HEIGHT,paddlecolor);
+	//next function draws ball
+	// canvasContext.fillStyle = 'white';
+	// canvasContext.beginPath();
+	// //ballX = X-axis,100 = Y-axis, 10 = radius, 0 and Math.Pi*2 are angle and radian around the circle. (true/false)is uesd for clockwise or counter-clockwise
+	// //arc(X-axis, Y-axis, radius, angle, radians)
+	// canvasContext.arc(ballX,50,10,0,Math.PI*2,true);
+	// canvasContext.fill();
+	colorCircle(ballX, ballY, 10, ballcolor);
+	
+
+
+	canvasContext.fillText(player1Score,100,100);
+	canvasContext.fillText(player2Score,canvas.width-100,100);
+}
+
+function colorCircle(centerX, centerY, radius,drawColor)
+{
+		canvasContext.fillStyle = drawColor;
+	    canvasContext.beginPath();
+	    canvasContext.arc(centerX,centerY,radius,0,Math.PI*2,true);
+	    canvasContext.fill();
+}
+
+function colorRect(leftX, topY, width, height, drawColor)
+{
+		canvasContext.fillStyle = drawColor;
+    	canvasContext.fillRect(leftX, topY, width, height);
+    	// var x1 = width;
+    	// var y1 = height;
+    	// var x3 = x1;
+    	// var y3 = y1 + 50;
+    	// var x2 = x1 + 30;
+    	// var y2 = (y1+y3)/2;
+    	// while(y3<height){
+    	// 	//triangle(x1,y1,x2,y2,x3,y3);
+    	// 	    context.beginPath();
+     //            context.moveTo(x3,y3);
+     //            context.lineTo(x2,y2);
+     //            context.lineTo(x1,y1);
+     //            context.fill('white');
+    	// 	fill('white');
+    	// 	x1 = x3;
+    	// 	y1 = y3;
+    	// 	y3 += 50;
+    	// 	y2 = (y1+y3)/2;
+    	// }
+}
+</script>
+</body> 
+</html>

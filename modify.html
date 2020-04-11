@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Modify tennis game</title>
+	<style type="text/css">
+		body{
+			font-family: monospace;
+		}
+		input{
+			border-radius: 6px;
+			width: 200px;
+			background-color: transparent;
+			border-color: black;
+			padding: 20px;
+			margin: 10px;
+			border-width: 0px;
+			border-bottom-width: 2px;
+			border-left-width:  1px;
+			border-right-width:  1px;
+		}
+		button{
+			background-color: #4CAF50;
+			border-radius: 10px;
+			width: 200px;
+			height: 50px;
+			margin-left: 20px;
+		}
+		button:hover{
+			width: 250px;
+			box-shadow: 4px 4px 8px grey;
+		}
+	</style>
+	<script type="text/javascript">
+	window.onload = function(){
+		var bgcol = document.getElementById('bg').value;
+		var paddlec = document.getElementById('paddle').value;
+		var ballc = document.getElementById('ball').value;
+		var point = document.getElementById('point').value;
+            localStorage.setItem('bg',bgcol);
+            localStorage.setItem('paddlec',paddlec);
+            localStorage.setItem('ballc',ballc);
+            localStorage.setItem('point',point);
+        }
+	function modify(){
+		localStorage.clear();
+		var bgcol = document.getElementById('bg').value;
+		var paddlec = document.getElementById('paddle').value;
+		var ballc = document.getElementById('ball').value;
+		var  point = document.getElementById('point').value;
+        localStorage.setItem('bg',bgcol);
+        localStorage.setItem('paddlec',paddlec);
+        localStorage.setItem('ballc',ballc);
+        localStorage.setItem('point',point);
+	}
+
+	</script>
+</head>
+<body>
+<h3>Enter Back ground color:</h3>
+<input type="text" name="backgroung color" placeholder="backgroung" value="black" id="bg">
+<br>
+<h3>Enter Color of paddle:</h3>
+<input type="text" name="paddle" placeholder="paddle color" id="paddle" value="white">
+<br>
+<h3>Enter Ball color:</h3>
+<input type="text" name="ball" placeholder="Ballcolor" id="ball" value="white">
+<br>
+<h3>Enter Winning Points of Match:</h3>
+<input type="text" name="point" placeholder="pionts" id="point" value="5">
+<br>
+<button id="submit" onclick="modify()">Change</button><br>
+<a href="game.html"><button id="submit">go back to game</button></a>
+</body>
+</html>
